@@ -32,7 +32,7 @@ const usuariosMock = [
         nome: 'João Silva',
         email: 'joao@fidelitas.com',
         cpf: '11122233344',
-        password: '654321',
+        password: '123456',
         saldoPontos: 2000,
         transacoes: []
     },
@@ -73,7 +73,7 @@ const promocoesMock = [
 // Endpoint de login
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
-    
+
     const user = usuariosMock.find(u => u.email === email && u.password === password);
 
     if (!user) {
