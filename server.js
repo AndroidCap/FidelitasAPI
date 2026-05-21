@@ -172,6 +172,43 @@ app.get('/extrato', autenticarToken, (req, res) => {
     return res.status(200).json(transacoesMock);
 });
 
+// Helper para formatar a data atual no padrão "21 Mai 2026"
+function formatarData(date) {
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    return `${date.getDate()} ${meses[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+// Endpoint para registrar um resgate de pontos
+app.post('/resgatar', autenticarToken, (req, res) => {
+    const { promocaoId, pontos, titulo } = req.body;
+
+    if (!pontos || pontos <= 0) {
+        return res.status(400).json({ message: 'Quantidade de pontos inválida.' });
+    }
+
+    if (usuarioMock.saldoPontos < pontos) {
+        return res.status(400).json({ message: 'Saldo insuficiente para este resgate.' });
+    }
+
+    // Deduz os pontos do saldo do usuário
+    usuarioMock.saldoPontos -= pontos;
+
+    // Cria e registra a nova transação
+    const novaTransacao = {
+        id: transacoesMock.length + 1,
+        descricao: `Resgate: ${titulo}`,
+        pontos: pontos,
+        isEntrada: false,
+        dataOperacao: formatarData(new Date())
+    };
+    transacoesMock.push(novaTransacao);
+
+    return res.status(200).json({
+        novoSaldo: usuarioMock.saldoPontos,
+        transacao: novaTransacao
+    });
+});
+
 const PORT = 3000;
 
 app.listen(PORT, () => {
